@@ -1,0 +1,7 @@
+name: "Lidar_VLP16"
+type: "lidar"
+resolution:
+  - 360
+  - 16
+range: 100.0
+accuracy: 0.03

@@ -1,0 +1,398 @@
+{
+  "textures": {
+    "ground": "textures/ground.jpg",
+    "road": "textures/road.png",
+    "field": "textures/field.jpg",
+    "building1": "textures/building1.jpg",
+    "building2": "textures/building2.jpg",
+    "airplane": "textures/MiG29.png"
+  },
+  "tof_camera": {
+    "position": [
+      20.0,
+      40.0,
+      0.0
+    ],
+    "target": [
+      22.0,
+      1.0,
+      0.0
+    ],
+    "fov": 45.0,
+    "near": 0.1,
+    "far": 100.0,
+    "resolution": [
+      200,
+      200
+    ]
+  },
+  "render_camera": {
+    "position": [
+      15.0,
+      10.0,
+      10.0
+    ],
+    "target": [
+      20.0,
+      4.0,
+      0.0
+    ],
+    "fov": 45.0,
+    "near": 0.1,
+    "far": 100.0,
+    "resolution": [
+      400,
+      300
+    ]
+  },
+  "camera_routes": [
+    {
+      "id": "straight_route",
+      "name": "Прямой маршрут",
+      "default_step": 4.0,
+      "start": {
+        "position": [8.0, 28.0, -16.0],
+        "target": [22.0, 1.0, 0.0]
+      },
+      "end": {
+        "position": [40.0, 26.0, 16.0],
+        "target": [22.0, 1.0, 0.0]
+      }
+    }
+  ],
+  "objects": [
+    {
+      "id": "ground",
+      "type": "plane",
+      "position": [
+        0.0,
+        -0.29,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        100.0,
+        1.0,
+        100.0
+      ],
+      "color": [
+        0.35,
+        0.35,
+        0.35
+      ],
+      "texture": "ground"
+    },
+    {
+      "id": "road",
+      "type": "plane",
+      "position": [
+        0.0,
+        -0.288,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        30.0,
+        1.0,
+        3.0
+      ],
+      "color": [
+        0.2,
+        0.2,
+        0.2
+      ],
+      "texture": "road"
+    },
+    {
+      "id": "field",
+      "type": "plane",
+      "position": [
+        22.5,
+        -0.285,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        7.5,
+        1.0,
+        10.0
+      ],
+      "color": [
+        0.3,
+        0.3,
+        0.3
+      ],
+      "texture": "field"
+    },
+    {
+      "id": "building_1",
+      "type": "box",
+      "position": [
+        20.0,
+        -0.3,
+        14.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dimensions": [
+        4.0,
+        3.0,
+        5.0
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "texture": "building1"
+    },
+    {
+      "id": "building_2",
+      "type": "box",
+      "position": [
+        25.0,
+        -0.3,
+        -14.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dimensions": [
+        5.0,
+        4.5,
+        4.0
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "texture": "building2"
+    },
+    {
+      "id": "building_3",
+      "type": "box",
+      "position": [
+        34.0,
+        -0.3,
+        5.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dimensions": [
+        6.0,
+        5.5,
+        6.0
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "texture": "building1"
+    },
+    {
+      "id": "building_4",
+      "type": "box",
+      "position": [
+        34.0,
+        -0.3,
+        -5.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dimensions": [
+        4.5,
+        3.5,
+        5.5
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "texture": "building2"
+    },
+    {
+      "id": "main_airplane",
+      "type": "mesh",
+      "model_path": "models/Mig29.stl",
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "color": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "texture": "airplane",
+      "dynamic_pos": "airplane_pos",
+      "dynamic_rot": "airplane_rot"
+    },
+    {
+      "id": "parked_1",
+      "type": "mesh",
+      "model_path": "models/Mig29.stl",
+      "position": [
+        18.0,
+        0.0,
+        -7.5
+      ],
+      "rotation": [
+        -90.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "color": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "texture": "airplane"
+    },
+    {
+      "id": "parked_2",
+      "type": "mesh",
+      "model_path": "models/Mig29.stl",
+      "position": [
+        20.5,
+        0.0,
+        -7.5
+      ],
+      "rotation": [
+        -90.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "color": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "texture": "airplane"
+    },
+    {
+      "id": "parked_3",
+      "type": "mesh",
+      "model_path": "models/Mig29.stl",
+      "position": [
+        23.0,
+        0.0,
+        -7.5
+      ],
+      "rotation": [
+        -90.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "color": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "texture": "airplane"
+    },
+    {
+      "id": "parked_4",
+      "type": "mesh",
+      "model_path": "models/Mig29.stl",
+      "position": [
+        25.5,
+        0.0,
+        -7.5
+      ],
+      "rotation": [
+        -90.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "color": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "texture": "airplane"
+    },
+    {
+      "id": "parked_5",
+      "type": "mesh",
+      "model_path": "models/Mig29.stl",
+      "position": [
+        28.0,
+        0.0,
+        -7.5
+      ],
+      "rotation": [
+        -90.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "color": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "texture": "airplane"
+    }
+  ]
+}

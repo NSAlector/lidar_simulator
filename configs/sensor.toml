@@ -1,0 +1,5 @@
+name = "Camera_Front"
+type = "camera"
+resolution = [1920, 1080]
+range = 50.0
+accuracy = 0.05
