@@ -1,0 +1,8 @@
+numpy==2.4.2
+laspy==2.7.0
+matplotlib==3.10.8
+numba==0.64.0
+pypcd4==1.4.3
+stl-reader==0.2.3
+trimesh==4.11.3
+fast_simplification==0.1.13
