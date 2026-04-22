@@ -10,6 +10,31 @@ class ToFService:
         self._last_camera = None
 
     @staticmethod
+    def _apply_accuracy(camera_position, points, distances, accuracy, near_plane, far_plane):
+        accuracy = max(0.0, float(accuracy))
+        if accuracy <= 0.0:
+            return points, distances
+
+        valid_mask = ~np.isnan(distances)
+        if not np.any(valid_mask):
+            return points, distances
+
+        quantized_distances = distances.copy()
+        hit_distances = quantized_distances[valid_mask]
+        hit_distances = np.round(hit_distances / accuracy) * accuracy
+        hit_distances = np.clip(hit_distances, near_plane, far_plane)
+        quantized_distances[valid_mask] = hit_distances
+
+        if points is None or getattr(points, "size", 0) == 0:
+            return points, quantized_distances
+
+        directions = points - camera_position
+        norms = np.linalg.norm(directions, axis=1, keepdims=True)
+        norms = np.maximum(norms, 1e-9)
+        quantized_points = camera_position + (directions / norms) * hit_distances[:, None]
+        return quantized_points, quantized_distances
+
+    @staticmethod
     def _load_tof_dependencies():
         base_dir = os.path.dirname(os.path.abspath(__file__))
         geometry_path = os.path.join(base_dir, "geometry.py")
@@ -145,14 +170,26 @@ class ToFService:
                 raw_distances[valid_hits_mask],
                 np.nan
             )
-
-            scene_state.tof_distances = filtered_distances
-            scene_state.tof_resolution = (width, height)
-            scene_state.tof_points = (
+            filtered_points = (
                 cam.object_points[in_range_hits_mask]
                 if cam.object_points is not None and cam.object_points.size
                 else np.array([])
             )
+            filtered_points, filtered_distances = self._apply_accuracy(
+                position,
+                filtered_points,
+                filtered_distances,
+                getattr(tof_camera, "accuracy", 0.0),
+                near_plane,
+                far_plane,
+            )
+
+            cam.object_distances = filtered_distances
+            cam.object_points = filtered_points
+
+            scene_state.tof_distances = filtered_distances
+            scene_state.tof_resolution = (width, height)
+            scene_state.tof_points = filtered_points
             
         except ImportError:
             self._last_camera = None

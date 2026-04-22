@@ -44,7 +44,6 @@ class MainWindow(QMainWindow):
         self.control_layout.addWidget(self.back_button)
 
         self.scene_layout = QHBoxLayout()
-        self.scene_layout.addWidget(QLabel("Сцена:"))
         self.scene_combo = QComboBox()
         self.scene_layout.addWidget(self.scene_combo)
         self.control_layout.addLayout(self.scene_layout)
@@ -115,7 +114,7 @@ class MainWindow(QMainWindow):
             self.tof_target_spins.append(spin)
             self.tof_target_layout.addWidget(spin)
         self.tof_ctrl_layout.addLayout(self.tof_target_layout)
-        
+
         self.control_layout.addWidget(self.tof_ctrl_group)
 
         self.render_ctrl_group = QGroupBox("Управление рендер-камерой")

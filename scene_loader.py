@@ -157,6 +157,7 @@ class ToFCameraConfig:
     near: float = 0.1
     far: float = 100.0
     resolution: List[int] = field(default_factory=lambda: [100, 100])
+    accuracy: float = 0.0
 
 @dataclass
 class RenderCameraConfig:
@@ -222,7 +223,8 @@ def load_scene(config_path: str) -> SceneConfig:
         fov=float(tof_data.get("fov", 45.0)),
         near=float(tof_data.get("near", 0.1)),
         far=float(tof_data.get("far", 100.0)),
-        resolution=_parse_vector(tof_data.get("resolution"), [100, 100], int)
+        resolution=_parse_vector(tof_data.get("resolution"), [100, 100], int),
+        accuracy=max(0.0, float(tof_data.get("accuracy", 0.0))),
     )
 
     render_data = data.get("render_camera", {})
