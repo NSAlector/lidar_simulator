@@ -295,3 +295,22 @@ def numba_generate_rays(
             idx += 1
     
     return rays_start, rays_direction
+
+@njit(parallel=True)
+def numba_make_noise(
+    distances: np.ndarray,
+    points: np.ndarray,
+    rays_start: np.ndarray,
+    rays_direction: np.ndarray,
+    noise: float
+) -> tuple[np.ndarray, np.ndarray]:
+    noise_distances = distances.copy()
+    noise_points = points.copy()
+    
+    for i in prange(distances.shape[0]):
+        if not np.isnan(distances[i]):
+            sign = np.random.choice(np.array([-1, 1]))
+            noise_distances[i] += sign * noise
+            noise_points[i] = rays_start[i] + noise_distances[i] * rays_direction[i]
+
+    return noise_distances, noise_points

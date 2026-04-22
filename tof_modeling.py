@@ -192,9 +192,9 @@ class ToFCamera:
         d = np.linalg.norm(self.direction)
         e1 = self.direction / d
 
-        a = np.array([0, 1, 0])
+        a = np.array([1, 0, 0])
         if (np.all((a - e1) == 0)):
-            a = np.array([1, 0, 0])
+            a = np.array([0, 1, 0])
 
         e2 = np.cross(e1, a)
         e2 /= np.linalg.norm(e2)
@@ -231,7 +231,8 @@ class ToFCamera:
         self, 
         geo_object: Sphere | Triangle | Figure,
         parallel: bool = False,
-        use_octree: bool = False
+        use_octree: bool = False,
+        noise: float = 0.0
     ) -> None:
         """
         Method for getting points of the geo object and distances to the geo object.
@@ -242,9 +243,9 @@ class ToFCamera:
         """
         if parallel:
             if use_octree and type(geo_object) == Figure:
-                self._get_points_and_distances_to_object_parallel_octree(geo_object)
+                self._get_points_and_distances_to_object_parallel_octree(geo_object, noise=noise)
             else:
-                self._get_points_and_distances_to_object_parallel(geo_object)
+                self._get_points_and_distances_to_object_parallel(geo_object, noise)
             return
         distances = []
         points = []
@@ -260,8 +261,17 @@ class ToFCamera:
                 distances.append(np.nan)
             else:
                 dist = distance_to(point, self.position)
-                distances.append(dist)
-                points.append(point.coords)
+                if noise != 0:
+                    sign = np.random.choice([-1, 1])
+                    noise_dist = dist + sign * noise
+                    noise_point_coords = self.position.coords + (dist * ray.direction)
+                    noise_point = Point(noise_point_coords)
+                else:
+                    noise_dist = dist
+                    noise_point = point
+
+                distances.append(noise_dist)
+                points.append(noise_point.coords)
 
         result_distances = np.array(distances)
         result_points = np.array(points) if points else np.array([])
@@ -355,7 +365,7 @@ class ToFCamera:
         )
         return rays_start, rays_direction
 
-    def _get_points_and_distances_to_object_parallel(self, geo_object) -> None:
+    def _get_points_and_distances_to_object_parallel(self, geo_object, noise) -> None:
         """
         Parallel version of get points and distances to object.
         """
@@ -394,6 +404,11 @@ class ToFCamera:
             object_type, object_params
         )
         
+        if noise != 0:
+            distances, points = tfp.numba_make_noise(
+                distances, points, rays_start, rays_direction, noise
+            )
+
         self.object_distances = distances
         
         valid_mask = ~np.isnan(points[:, 0])
@@ -401,14 +416,16 @@ class ToFCamera:
 
     def _get_points_and_distances_to_object_parallel_octree(
         self, 
-        figure: Figure
+        figure: Figure,
+        noise: float = 0.0
     ) -> None:
         pass
 
     def get_points_and_distances_to_scene(
         self,
         figures: list[Triangle | Sphere | Figure],
-        use_octree: bool = False
+        use_octree: bool = False,
+        noise: float = 0.0
     ) -> None:
         """
         Get points and distances to all objects on the scene.
@@ -441,8 +458,17 @@ class ToFCamera:
             if nearest_point is None:
                 distances.append(np.nan)
             else:
-                distances.append(nearest_dist)
-                points.append(nearest_point.coords)
+                if noise != 0:
+                    sign = np.random.choice([-1, 1])
+                    noise_dist = nearest_dist + sign * noise
+                    noise_point_coords = self.position.coords + (nearest_dist * ray.direction)
+                    noise_point = Point(noise_point_coords)
+                else:
+                    noise_dist = nearest_dist
+                    noise_point = nearest_point
+
+                distances.append(noise_dist)
+                points.append(noise_point.coords)
 
         result_distances = np.array(distances)
         result_points = np.array(points) if points else np.array([])
