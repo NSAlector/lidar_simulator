@@ -13,7 +13,7 @@ def _parse_vector(values, default: List[float], cast_type=float):
 @dataclass
 class SceneObject:
     id: str
-    type: str  # 'mesh', 'plane', 'box'
+    type: str  # 'mesh', 'plane', 'box', 'sphere'
     position: List[float]
     rotation: List[float]
     scale: List[float] = field(default_factory=lambda: [1.0, 1.0, 1.0])
@@ -27,6 +27,14 @@ class SceneObject:
     # Dynamic binding keys
     dynamic_pos: str = ""
     dynamic_rot: str = ""
+
+    @staticmethod
+    def _build_triangle(v0, v1, v2):
+        normal = np.cross(v1 - v0, v2 - v0)
+        norm = np.linalg.norm(normal)
+        if norm < 1e-9:
+            return None
+        return ((v0, v1, v2), normal / norm)
 
     def get_triangles(self) -> List:
         """
@@ -93,6 +101,50 @@ class SceneObject:
                 np.array([x1, y1, z0]), np.array([x1, y1, z1]),
                 np.array([1.0, 0.0, 0.0])
             )
+
+        elif self.type == 'sphere':
+            px, py, pz = self.position
+            rx = max(abs(float(self.scale[0])), 1e-3)
+            ry = max(abs(float(self.scale[1])), 1e-3)
+            rz = max(abs(float(self.scale[2])), 1e-3)
+            rings = 16
+            segments = 24
+
+            for ring in range(rings):
+                theta0 = (-np.pi / 2.0) + (np.pi * ring / rings)
+                theta1 = (-np.pi / 2.0) + (np.pi * (ring + 1) / rings)
+
+                for segment in range(segments):
+                    phi0 = 2.0 * np.pi * segment / segments
+                    phi1 = 2.0 * np.pi * (segment + 1) / segments
+
+                    v00 = np.array([
+                        px + rx * np.cos(theta0) * np.cos(phi0),
+                        py + ry * np.sin(theta0),
+                        pz + rz * np.cos(theta0) * np.sin(phi0),
+                    ])
+                    v01 = np.array([
+                        px + rx * np.cos(theta0) * np.cos(phi1),
+                        py + ry * np.sin(theta0),
+                        pz + rz * np.cos(theta0) * np.sin(phi1),
+                    ])
+                    v10 = np.array([
+                        px + rx * np.cos(theta1) * np.cos(phi0),
+                        py + ry * np.sin(theta1),
+                        pz + rz * np.cos(theta1) * np.sin(phi0),
+                    ])
+                    v11 = np.array([
+                        px + rx * np.cos(theta1) * np.cos(phi1),
+                        py + ry * np.sin(theta1),
+                        pz + rz * np.cos(theta1) * np.sin(phi1),
+                    ])
+
+                    tri_a = self._build_triangle(v00, v10, v11)
+                    tri_b = self._build_triangle(v00, v11, v01)
+                    if tri_a is not None:
+                        tris.append(tri_a)
+                    if tri_b is not None:
+                        tris.append(tri_b)
             
         return tris
 
@@ -140,7 +192,6 @@ class SceneConfig:
 
 def load_scene(config_path: str) -> SceneConfig:
     if not os.path.exists(config_path):
-        print(f"[SceneLoader] Warning: {config_path} not found. Returning empty scene.")
         return SceneConfig(objects=[])
         
     with open(config_path, 'r', encoding='utf-8') as f:

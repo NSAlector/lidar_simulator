@@ -27,7 +27,6 @@ class SceneGLWidget(QOpenGLWidget):
 
         self.projector_texture_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'textures', 'base_texture.png')
 
-    # Делегирование свойств SceneState, чтобы не ломать внешний API (MainWindow)
     @property
     def airplane_pos(self): return self.scene_state.airplane_pos
     @airplane_pos.setter
@@ -62,13 +61,8 @@ class SceneGLWidget(QOpenGLWidget):
         
         if not self.gl_resources.get_texture('projector'):
             self.gl_resources.load_texture('projector', self.projector_texture_path)
-            
-        if getattr(self.scene_state, 'scene_config', None):
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            for tex_id, tex_path in self.scene_state.scene_config.textures.items():
-                if not self.gl_resources.get_texture(tex_id):
-                    full_path = os.path.join(base_dir, tex_path)
-                    self.gl_resources.load_texture(tex_id, full_path, wrap=gl.GL_REPEAT)
+
+        self._load_scene_textures()
 
     def resizeGL(self, w, h):
         if self.gl_resources.fbo is not None:
@@ -76,6 +70,26 @@ class SceneGLWidget(QOpenGLWidget):
 
     def apply_camera_config(self, config: dict):
         self.render_camera_controller.apply_config(config)
+        self.update()
+
+    def _load_scene_textures(self):
+        if not getattr(self.scene_state, 'scene_config', None):
+            return
+
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        for tex_id, tex_path in self.scene_state.scene_config.textures.items():
+            if not self.gl_resources.get_texture(tex_id):
+                full_path = os.path.join(base_dir, tex_path)
+                self.gl_resources.load_texture(tex_id, full_path, wrap=gl.GL_REPEAT)
+
+    def reload_scene_resources(self):
+        if not self.isValid():
+            self.update()
+            return
+
+        self.makeCurrent()
+        self._load_scene_textures()
+        self.doneCurrent()
         self.update()
 
     def cleanup(self):
@@ -330,9 +344,14 @@ class SceneGLWidget(QOpenGLWidget):
                     gl.glEnd()
                     gl.glDisable(gl.GL_TEXTURE_2D)
 
+                elif obj.type == 'sphere':
+                    gl.glDisable(gl.GL_TEXTURE_2D)
+                    gl.glColor3f(*obj.color)
+                    gluSphere(self.gl_resources.quadric, 1.0, 24, 24)
+
                 gl.glPopMatrix()
 
-        # Маркер ToF камеры
+        # Marker ToF camera
         gl.glDisable(gl.GL_TEXTURE_2D)
         gl.glEnable(gl.GL_LIGHTING)
 
@@ -355,7 +374,7 @@ class SceneGLWidget(QOpenGLWidget):
         gl.glLineWidth(1.0)
         gl.glEnable(gl.GL_LIGHTING)
 
-        # Маркер камеры рендера
+        # Marker render camera
         render_pos = self.render_camera_controller.pos
         render_target = self.render_camera_controller.target
 

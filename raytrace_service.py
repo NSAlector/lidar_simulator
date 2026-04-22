@@ -38,7 +38,6 @@ class RaytraceService:
 
                     if obj.type == 'mesh':
                         if obj.model_path not in parsed_stls:
-                            print(f"[Raytracer] Parsing {obj.model_path}...")
                             # we need an abspath probably or assume it's relative to project root
                             full_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), obj.model_path)
                             parsed_stls[obj.model_path] = parse_binary_stl(full_path, color)
@@ -49,7 +48,6 @@ class RaytraceService:
                         center, norm_scale = compute_mesh_normalization(all_verts)
                         
                         m = Material(color=color, diffuse=0.9, specular=0.3, shininess=50.0, reflection=0.1)
-                        print(f"[Raytracer] Adding mesh: {obj.id}")
                         for tri in raw_mesh.triangles:
                             # transform_vertex applies: (v - center)/norm_scale, then rot, scale, trans
                             # Wait, the existing transform_vertex does: rot @ ((v - center)/norm_scale) + pos
@@ -70,8 +68,7 @@ class RaytraceService:
                             if nl < 1e-6: continue
                             all_triangles.append(RayTriangle(v0, v1, v2, n / nl, color, m))
                     
-                    elif obj.type in ['plane', 'box']:
-                        print(f"[Raytracer] Adding {obj.type}: {obj.id}")
+                    elif obj.type in ['plane', 'box', 'sphere']:
                         tris = obj.get_triangles()
                         for (v0, v1, v2), normal in tris:
                             # Apply dynamic rotation/position if needed (usually primitives don't have dynamic, but just in case)
@@ -88,10 +85,8 @@ class RaytraceService:
                                 all_triangles.append(RayTriangle(v0, v1, v2, n/nl, color, mat))
 
             if not all_triangles:
-                print("[Raytracer] Нет треугольников.")
                 return None
 
-            print(f"[Raytracer] Строим BVH для {len(all_triangles)} треугольников...")
             scene_mesh = Mesh(all_triangles)
 
             cam_pos = np.array(camera_controller.pos, dtype=np.float64)
@@ -118,14 +113,10 @@ class RaytraceService:
                 light=light
             )
 
-            print(f"[Raytracer] Рендеринг {width}x{height}...")
             image_array = renderer.render(width, height)
 
             img = PilImage.fromarray(image_array.astype(np.uint8))
             return img
 
-        except Exception as e:
-            import traceback
-            print(f"[Raytracer] Ошибка: {e}")
-            traceback.print_exc()
+        except Exception:
             return None

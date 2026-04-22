@@ -92,7 +92,7 @@ class ToFService:
                             except ValueError:
                                 pass
                                 
-                elif obj.type in ['plane', 'box']:
+                elif obj.type in ['plane', 'box', 'sphere']:
                     tris = obj.get_triangles()
                     for (v0, v1, v2), normal in tris:
                         if obj.dynamic_pos or obj.dynamic_rot:
@@ -109,7 +109,6 @@ class ToFService:
                             pass
             
             if not triangles:
-                print("Нет треугольников для ToF")
                 return
                 
             figure = ToFFigure(triangles=triangles, use_octree=True)
@@ -155,12 +154,10 @@ class ToFService:
                 else np.array([])
             )
             
-        except ImportError as e:
+        except ImportError:
             self._last_camera = None
-            print(f"Ошибка загрузки модулей ToF: {e}")
-        except Exception as e:
+        except Exception:
             self._last_camera = None
-            print(f"Ошибка расчёта ToF: {e}")
 
     def save_depth_map(self, scene_state: SceneState, filename="depth_map.png"):
         if not hasattr(scene_state, 'tof_distances') or scene_state.tof_distances is None:
@@ -191,7 +188,6 @@ class ToFService:
 
         plt.savefig(filename)
         plt.close(figure)
-        print(f"Карта глубин сохранена в {filename}")
         return True
 
     def save_point_cloud_pcd(self, filename="point_cloud.pcd", points=None):
@@ -219,5 +215,36 @@ class ToFService:
             point_cloud = pypcd4.PointCloud.from_xyz_points(point_array)
             point_cloud.save(filename)
 
-        print(f"Point cloud сохранён в {filename}")
+        return True
+
+    def save_point_cloud_las(self, filename="point_cloud.las", points=None):
+        if self._last_camera is None and points is None:
+            return False
+
+        output_dir = os.path.dirname(os.path.abspath(filename))
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+
+        if points is None:
+            self._last_camera.write_point_cloud_las(filename)
+        else:
+            import laspy
+
+            point_array = np.asarray(points, dtype=np.float64)
+            if point_array.size == 0:
+                point_array = np.empty((0, 3), dtype=np.float64)
+            elif point_array.ndim == 1:
+                point_array = point_array.reshape(1, -1)
+
+            if point_array.shape[1] > 3:
+                point_array = point_array[:, :3]
+
+            header = laspy.LasHeader(point_format=3, version="1.2")
+            header.scales = np.array([0.0001, 0.0001, 0.0001])
+            las = laspy.LasData(header)
+            las.x = point_array[:, 0]
+            las.y = point_array[:, 1]
+            las.z = point_array[:, 2]
+            las.write(filename)
+
         return True
