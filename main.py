@@ -3,7 +3,8 @@ import os
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QVBoxLayout,
     QWidget, QStackedWidget, QDoubleSpinBox, QLabel,
-    QHBoxLayout, QGroupBox, QSpacerItem, QSizePolicy, QDialog, QScrollArea
+    QHBoxLayout, QGroupBox, QSpacerItem, QSizePolicy, QDialog, QScrollArea,
+    QLineEdit, QComboBox
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
@@ -42,14 +43,20 @@ class MainWindow(QMainWindow):
         self.back_button.clicked.connect(self.show_menu)
         self.control_layout.addWidget(self.back_button)
 
+        self.scene_layout = QHBoxLayout()
+        self.scene_layout.addWidget(QLabel("Сцена:"))
+        self.scene_combo = QComboBox()
+        self.scene_layout.addWidget(self.scene_combo)
+        self.control_layout.addLayout(self.scene_layout)
+
         self.load_camera_button = QPushButton("Загрузить конфиг рендер-камеры")
         self.control_layout.addWidget(self.load_camera_button)
 
-        self.tof_button = QPushButton("📷 Снимок ToF камерой")
+        self.tof_button = QPushButton("📷 ToF-снимок")
         self.tof_button.setStyleSheet("background-color: #1565c0; color: white; font-weight: bold; margin-top: 10px;")
         self.control_layout.addWidget(self.tof_button)
 
-        self.raytrace_button = QPushButton("🎨 Рендер (Raytracer)")
+        self.raytrace_button = QPushButton("🎨 Рендер")
         self.raytrace_button.setStyleSheet("background-color: #2e7d32; color: white; font-weight: bold; margin-top: 5px;")
         self.control_layout.addWidget(self.raytrace_button)
 
@@ -140,18 +147,95 @@ class MainWindow(QMainWindow):
 
         self.control_layout.addWidget(self.render_ctrl_group)
 
-        self.route_group = QGroupBox("Пролет камер")
+        self.route_group = QGroupBox("Пролет камеры")
         self.route_layout = QVBoxLayout(self.route_group)
 
-        self.route_step_layout = QHBoxLayout()
-        self.route_step_layout.addWidget(QLabel("Шаг:"))
-        self.route_step_spin = QDoubleSpinBox()
-        self.route_step_spin.setRange(0.1, 50.0)
-        self.route_step_spin.setDecimals(2)
-        self.route_step_spin.setSingleStep(0.5)
-        self.route_step_spin.setValue(2.0)
-        self.route_step_layout.addWidget(self.route_step_spin)
-        self.route_layout.addLayout(self.route_step_layout)
+        self.route_mode_layout = QHBoxLayout()
+        self.route_mode_layout.addWidget(QLabel("Тип:"))
+        self.route_mode_combo = QComboBox()
+        self.route_mode_combo.addItem("Линейный пролет", "linear")
+        self.route_mode_combo.addItem("Облет вокруг точки", "orbit")
+        self.route_mode_layout.addWidget(self.route_mode_combo)
+        self.route_layout.addLayout(self.route_mode_layout)
+
+        self.route_mode_stack = QStackedWidget()
+
+        self.linear_route_page = QWidget()
+        self.linear_route_layout = QVBoxLayout(self.linear_route_page)
+        self.linear_route_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.linear_start_layout, self.linear_start_spins = self._build_vector_spin_row(
+            "Старт:", SimulationDefaults.TOF_POS
+        )
+        self.linear_route_layout.addLayout(self.linear_start_layout)
+
+        self.linear_end_layout, self.linear_end_spins = self._build_vector_spin_row(
+            "Финиш:", SimulationDefaults.RENDER_POS
+        )
+        self.linear_route_layout.addLayout(self.linear_end_layout)
+
+        self.linear_target_layout, self.linear_target_spins = self._build_vector_spin_row(
+            "Точка взгляда:", SimulationDefaults.TOF_TARGET
+        )
+        self.linear_route_layout.addLayout(self.linear_target_layout)
+
+        self.linear_step_layout = QHBoxLayout()
+        self.linear_step_layout.addWidget(QLabel("Шаг:"))
+        self.linear_step_spin = QDoubleSpinBox()
+        self.linear_step_spin.setRange(0.1, 50.0)
+        self.linear_step_spin.setDecimals(2)
+        self.linear_step_spin.setSingleStep(0.5)
+        self.linear_step_spin.setValue(2.0)
+        self.linear_step_layout.addWidget(self.linear_step_spin)
+        self.linear_route_layout.addLayout(self.linear_step_layout)
+
+        self.route_mode_stack.addWidget(self.linear_route_page)
+
+        self.orbit_route_page = QWidget()
+        self.orbit_route_layout = QVBoxLayout(self.orbit_route_page)
+        self.orbit_route_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.orbit_start_layout, self.orbit_start_spins = self._build_vector_spin_row(
+            "Старт:", SimulationDefaults.TOF_POS
+        )
+        self.orbit_route_layout.addLayout(self.orbit_start_layout)
+
+        self.orbit_target_layout, self.orbit_target_spins = self._build_vector_spin_row(
+            "Точка цели:", SimulationDefaults.TOF_TARGET
+        )
+        self.orbit_route_layout.addLayout(self.orbit_target_layout)
+
+        self.orbit_step_layout = QHBoxLayout()
+        self.orbit_step_layout.addWidget(QLabel("Шаг угла:"))
+        self.orbit_angle_step_spin = QDoubleSpinBox()
+        self.orbit_angle_step_spin.setRange(0.1, 180.0)
+        self.orbit_angle_step_spin.setDecimals(2)
+        self.orbit_angle_step_spin.setSingleStep(5.0)
+        self.orbit_angle_step_spin.setValue(15.0)
+        self.orbit_step_layout.addWidget(self.orbit_angle_step_spin)
+        self.orbit_route_layout.addLayout(self.orbit_step_layout)
+
+        self.route_mode_stack.addWidget(self.orbit_route_page)
+        self.route_layout.addWidget(self.route_mode_stack)
+        self.route_mode_combo.currentIndexChanged.connect(self.route_mode_stack.setCurrentIndex)
+
+        self.route_output_layout = QHBoxLayout()
+        self.route_output_layout.addWidget(QLabel("Каталог:"))
+        self.route_output_edit = QLineEdit()
+        self.route_output_edit.setPlaceholderText("Выберите каталог для сохранения")
+        self.route_output_layout.addWidget(self.route_output_edit)
+        self.route_output_browse_button = QPushButton("...")
+        self.route_output_browse_button.setFixedWidth(36)
+        self.route_output_layout.addWidget(self.route_output_browse_button)
+        self.route_layout.addLayout(self.route_output_layout)
+
+        self.route_point_cloud_format_layout = QHBoxLayout()
+        self.route_point_cloud_format_layout.addWidget(QLabel("Формат облака точек:"))
+        self.route_point_cloud_format_combo = QComboBox()
+        self.route_point_cloud_format_combo.addItem("PCD", "pcd")
+        self.route_point_cloud_format_combo.addItem("LAS", "las")
+        self.route_point_cloud_format_layout.addWidget(self.route_point_cloud_format_combo)
+        self.route_layout.addLayout(self.route_point_cloud_format_layout)
 
         self.route_export_button = QPushButton("Пролет камер")
         self.route_export_button.setStyleSheet("background-color: #ef6c00; color: white; font-weight: bold; margin-top: 5px;")
@@ -176,6 +260,20 @@ class MainWindow(QMainWindow):
 
     def show_menu(self):
         self.stacked_widget.setCurrentWidget(self.menu_page)
+
+    def _build_vector_spin_row(self, label_text, defaults):
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel(label_text))
+        spins = []
+        for value in defaults:
+            spin = QDoubleSpinBox()
+            spin.setRange(-100.0, 100.0)
+            spin.setDecimals(2)
+            spin.setSingleStep(0.5)
+            spin.setValue(float(value))
+            spins.append(spin)
+            layout.addWidget(spin)
+        return layout, spins
 
     def _show_heatmap_dialog(self, image_path: str):
         if not os.path.exists(image_path):
