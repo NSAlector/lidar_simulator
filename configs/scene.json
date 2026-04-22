@@ -1,4 +1,5 @@
 {
+  "name": "Базовая сцена",
   "textures": {
     "ground": "textures/ground.jpg",
     "road": "textures/road.png",
@@ -22,8 +23,8 @@
     "near": 0.1,
     "far": 100.0,
     "resolution": [
-      200,
-      200
+      80,
+      80
     ]
   },
   "render_camera": {
@@ -41,8 +42,8 @@
     "near": 0.1,
     "far": 100.0,
     "resolution": [
-      400,
-      300
+      100,
+      75
     ]
   },
   "camera_routes": [
@@ -241,19 +242,19 @@
       "type": "mesh",
       "model_path": "models/Mig29.stl",
       "position": [
-        0.0,
-        0.0,
+        22.0,
+        0.3,
         0.0
       ],
       "rotation": [
-        0.0,
+        -90.0,
         0.0,
         0.0
       ],
       "scale": [
-        1.0,
-        1.0,
-        1.0
+        2.5,
+        2.5,
+        2.5
       ],
       "color": [
         0.8,
@@ -269,19 +270,19 @@
       "type": "mesh",
       "model_path": "models/Mig29.stl",
       "position": [
-        18.0,
-        0.0,
-        -7.5
+        20.0,
+        0.3,
+        7.5
       ],
       "rotation": [
-        -90.0,
+        180.0,
         0.0,
         0.0
       ],
       "scale": [
-        1.0,
-        1.0,
-        1.0
+        2.5,
+        2.5,
+        2.5
       ],
       "color": [
         0.8,
@@ -295,19 +296,19 @@
       "type": "mesh",
       "model_path": "models/Mig29.stl",
       "position": [
-        20.5,
-        0.0,
-        -7.5
+        24.0,
+        0.3,
+        7.5
       ],
       "rotation": [
-        -90.0,
+        180.0,
         0.0,
         0.0
       ],
       "scale": [
-        1.0,
-        1.0,
-        1.0
+        2.5,
+        2.5,
+        2.5
       ],
       "color": [
         0.8,
@@ -321,19 +322,19 @@
       "type": "mesh",
       "model_path": "models/Mig29.stl",
       "position": [
-        23.0,
-        0.0,
+        18.0,
+        0.3,
         -7.5
       ],
       "rotation": [
-        -90.0,
+        0.0,
         0.0,
         0.0
       ],
       "scale": [
-        1.0,
-        1.0,
-        1.0
+        2.5,
+        2.5,
+        2.5
       ],
       "color": [
         0.8,
@@ -347,19 +348,19 @@
       "type": "mesh",
       "model_path": "models/Mig29.stl",
       "position": [
-        25.5,
-        0.0,
+        23,
+        0.3,
         -7.5
       ],
       "rotation": [
-        -90.0,
+        0.0,
         0.0,
         0.0
       ],
       "scale": [
-        1.0,
-        1.0,
-        1.0
+        2.5,
+        2.5,
+        2.5
       ],
       "color": [
         0.8,
@@ -374,18 +375,18 @@
       "model_path": "models/Mig29.stl",
       "position": [
         28.0,
-        0.0,
+        0.3,
         -7.5
       ],
       "rotation": [
-        -90.0,
+        0.0,
         0.0,
         0.0
       ],
       "scale": [
-        1.0,
-        1.0,
-        1.0
+        2.5,
+        2.5,
+        2.5
       ],
       "color": [
         0.8,

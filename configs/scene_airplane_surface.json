@@ -1,0 +1,61 @@
+{
+  "name": "Самолет на поверхности",
+  "textures": {
+    "ground": "textures/ground.jpg",
+    "airplane": "textures/MiG29.png"
+  },
+  "tof_camera": {
+    "position": [0.0, 12.0, 10.0],
+    "target": [0.0, 0.8, 0.0],
+    "fov": 45.0,
+    "near": 0.1,
+    "far": 100.0,
+    "resolution": [80, 80]
+  },
+  "render_camera": {
+    "position": [8.0, 6.0, 8.0],
+    "target": [0.0, 0.8, 0.0],
+    "fov": 45.0,
+    "near": 0.1,
+    "far": 100.0,
+    "resolution": [100, 75]
+  },
+  "camera_routes": [
+    {
+      "id": "airplane_surface_route",
+      "name": "Облет самолета",
+      "default_step": 3.0,
+      "start": {
+        "position": [-8.0, 8.0, 8.0],
+        "target": [0.0, 0.8, 0.0]
+      },
+      "end": {
+        "position": [8.0, 8.0, -8.0],
+        "target": [0.0, 0.8, 0.0]
+      }
+    }
+  ],
+  "objects": [
+    {
+      "id": "ground",
+      "type": "plane",
+      "position": [0.0, -0.29, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [30.0, 1.0, 30.0],
+      "color": [0.35, 0.35, 0.35],
+      "texture": "ground"
+    },
+    {
+      "id": "main_airplane",
+      "type": "mesh",
+      "model_path": "models/Mig29.stl",
+      "position": [0.0, 0.3, 0.0],
+      "rotation": [-90.0, 0.0, 0.0],
+      "scale": [2.5, 2.5, 2.5],
+      "color": [0.8, 0.8, 0.8],
+      "texture": "airplane",
+      "dynamic_pos": "airplane_pos",
+      "dynamic_rot": "airplane_rot"
+    }
+  ]
+}

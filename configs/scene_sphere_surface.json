@@ -1,0 +1,56 @@
+{
+  "name": "Шар на поверхности",
+  "textures": {
+    "ground": "textures/ground.jpg"
+  },
+  "tof_camera": {
+    "position": [0.0, 8.0, 8.0],
+    "target": [0.0, 0.8, 0.0],
+    "fov": 45.0,
+    "near": 0.1,
+    "far": 100.0,
+    "resolution": [80, 80]
+  },
+  "render_camera": {
+    "position": [6.0, 4.5, 7.0],
+    "target": [0.0, 0.8, 0.0],
+    "fov": 45.0,
+    "near": 0.1,
+    "far": 100.0,
+    "resolution": [100, 75]
+  },
+  "camera_routes": [
+    {
+      "id": "sphere_surface_route",
+      "name": "Облет шара",
+      "default_step": 2.0,
+      "start": {
+        "position": [-6.0, 5.5, 6.0],
+        "target": [0.0, 0.8, 0.0]
+      },
+      "end": {
+        "position": [6.0, 5.5, -6.0],
+        "target": [0.0, 0.8, 0.0]
+      }
+    }
+  ],
+  "objects": [
+    {
+      "id": "ground",
+      "type": "plane",
+      "position": [0.0, -0.29, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [30.0, 1.0, 30.0],
+      "color": [0.35, 0.35, 0.35],
+      "texture": "ground"
+    },
+    {
+      "id": "surface_sphere",
+      "type": "sphere",
+      "position": [0.0, 0.71, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0],
+      "color": [0.88, 0.2, 0.2]
+    }
+  ]
+}
