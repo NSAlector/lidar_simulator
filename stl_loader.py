@@ -24,10 +24,8 @@ def load_stl(filename: str) -> stl_mesh.Mesh | None:
     try:
         loaded_mesh = stl_mesh.Mesh.from_file(stl_path)
         loaded_mesh.rotate([1.0, 0.0, 0.0], math.radians(90.0))
-        print(f"STL модель загружена: {stl_path}")
         return loaded_mesh
-    except Exception as e:
-        print(f"Ошибка загрузки STL: {e}")
+    except Exception:
         return None
 
 

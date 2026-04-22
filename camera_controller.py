@@ -100,4 +100,3 @@ class CameraController:
                 self.target = [float(tgt[0]), float(tgt[1]), float(tgt[2])]
 
         self.update_from_camera()
-        print(f"[Camera] pos={self.pos} fov={self.fov} near={self.near} far={self.far}")

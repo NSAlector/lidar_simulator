@@ -14,11 +14,9 @@ def _load_shader_source(filename: str) -> str:
         return f.read()
 
 QUAD_VERTICES = np.array([
-    # Первый треугольник
     -1.0,  1.0,  0.0, 1.0,
     -1.0, -1.0,  0.0, 0.0,
      1.0, -1.0,  1.0, 0.0,
-    # Второй треугольник
     -1.0,  1.0,  0.0, 1.0,
      1.0, -1.0,  1.0, 0.0,
      1.0,  1.0,  1.0, 1.0,
@@ -125,7 +123,7 @@ class GLResources:
         
         status = gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER)
         if status != gl.GL_FRAMEBUFFER_COMPLETE:
-            print(f"Ошибка FBO! Статус: {status}")
+            raise RuntimeError(f"Ошибка FBO! Статус: {status}")
 
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
 
