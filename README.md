@@ -30,8 +30,7 @@ raytracer/
 │   ├── base.py               # Базовый рендерер
 │   ├── mesh_renderer.py      # Рендерер мешей
 │   ├── sphere_renderer.py    # Рендерер сфер
-│   ├── mesh_group_renderer.py
+│   ├── mesh_group_renderer.py # Рендерер для группы мешей 
 │   └── unified_renderer.py   # Универсальный рендерер
-├── stl_parser.py             # Парсер STL файлов
 └── requirements.txt
 ```
