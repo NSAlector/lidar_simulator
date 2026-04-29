@@ -1,6 +1,4 @@
-import importlib.util
 import os
-import sys
 import numpy as np
 from scene_state import SceneState
 from geometry_utils import build_rotation_matrix, compute_mesh_normalization
@@ -36,39 +34,10 @@ class ToFService:
 
     @staticmethod
     def _load_tof_dependencies():
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        geometry_path = os.path.join(base_dir, "geometry.py")
-        tof_modeling_path = os.path.join(base_dir, "tof_modeling.py")
+        from tof_modeling_lib.geometry_tof import Point, Triangle, Figure
+        from tof_modeling_lib.tof_modeling import ToFCamera
 
-        geometry_spec = importlib.util.spec_from_file_location("_tof_geometry_module", geometry_path)
-        if geometry_spec is None or geometry_spec.loader is None:
-            raise ImportError(f"Cannot load geometry module from {geometry_path}")
-        geometry_module = importlib.util.module_from_spec(geometry_spec)
-
-        geometry_spec.loader.exec_module(geometry_module)
-
-        previous_geometry_module = sys.modules.get("geometry")
-        sys.modules["geometry"] = geometry_module
-
-        try:
-            tof_spec = importlib.util.spec_from_file_location("_tof_modeling_module", tof_modeling_path)
-            if tof_spec is None or tof_spec.loader is None:
-                raise ImportError(f"Cannot load ToF module from {tof_modeling_path}")
-            tof_module = importlib.util.module_from_spec(tof_spec)
-
-            tof_spec.loader.exec_module(tof_module)
-        finally:
-            if previous_geometry_module is not None:
-                sys.modules["geometry"] = previous_geometry_module
-            else:
-                sys.modules.pop("geometry", None)
-
-        return (
-            geometry_module.Point,
-            geometry_module.Triangle,
-            geometry_module.Figure,
-            tof_module.ToFCamera,
-        )
+        return Point, Triangle, Figure, ToFCamera
 
     def calculate_tof(self, scene_state: SceneState):
         if not getattr(scene_state, 'scene_config', None) or not scene_state.scene_config.objects:
@@ -156,8 +125,15 @@ class ToFService:
                 direction=direction,
                 fov=float(tof_camera.fov)
             )
-            
-            cam.get_points_and_distances_to_object(figure, parallel=False, use_octree=True)
+
+            accuracy = max(0.0, float(getattr(tof_camera, "accuracy", 0.0)))
+
+            cam.get_points_and_distances_to_object(
+                figure,
+                parallel=False,
+                use_octree=True,
+                noise=accuracy,
+            )
             self._last_camera = cam
             raw_distances = cam.object_distances.copy()
             valid_hits_mask = ~np.isnan(raw_distances)
@@ -179,7 +155,7 @@ class ToFService:
                 position,
                 filtered_points,
                 filtered_distances,
-                getattr(tof_camera, "accuracy", 0.0),
+                accuracy,
                 near_plane,
                 far_plane,
             )
