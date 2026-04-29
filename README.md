@@ -1,11 +1,23 @@
-# ToF Modeling Library
-A python library for modeling Time-Of-Light camera with configurable position, FOV, and resolution.
+# ToF Camera Modeling
+Библиотека для моделирования камеры Time-of-Flight (ToF).
 
-## Features
-- Support for STL mesh files. 
-- Include octree algorithm and parallel processing with numba.
-- Visualize depth map and point cloud (matplotlib).
-- Export/import point clouds in PCD and LAS formats
+## Возможности
+- Моделирование ToF-камеры с настраиваемым положением, углом обзора (FOV) и разрешением.
+- Алгоритмы пересечения луча со сферой, треугольником и фигурой, состоящей из треугольников.
+- Поддержка STL-файлов.
+- Octree для ускорения нахождения пересечений луча с треугольниками
+- Параллельные вычисления с помощью Numba
+- Симуляция шума для более реалистичных измерений расстояния
+- Визуализация карты глубины и облака точек (matplotlib)
+- Экспорт/импорт облака точек в форматах PCD и LAS
 
-## Contacts
-nikita.groshev2006@gmail.com
+## Структура проекта
+lidar_simulator/
+├── tof_modeling_lib/ # Основной пакет библиотеки
+│ ├── geometry_tof.py # Геометрические фигуры (Point, Triangle, Sphere, Figure)
+│ ├── oct_tree.py # Реализация Octree
+│ ├── tof_function_parallel.py # Numba-реализации алгоритмов пересечения лучей
+│ ├── tof_modeling.py # Основные классы для моделирования: ToFCamera и Ray
+├── stl_models/ # 3D stl-модели (Mig29.stl)
+├── tests.py # Примеры использования
+├── requirements.txt
