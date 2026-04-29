@@ -101,3 +101,11 @@
 - RGB-рендер;
 - depth map;
 - point cloud.
+
+---
+
+## Контакты
+
+Автор: Rayan Absalyamov
+
+- Email: `rayanabsalyamov@gmail.com`
