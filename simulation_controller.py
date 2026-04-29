@@ -580,6 +580,8 @@ class SimulationController:
 
         if img is not None:
             img.save(render_path)
+            self.view._show_render_dialog(render_path)
+            return
             QMessageBox.information(
                 self.view,
                 "Raytracer",
