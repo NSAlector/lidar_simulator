@@ -12,12 +12,16 @@
 - Экспорт/импорт облака точек в форматах PCD и LAS
 
 ## Структура проекта
+```text
 lidar_simulator/
-├── tof_modeling_lib/ # Основной пакет библиотеки
-│ ├── geometry_tof.py # Геометрические фигуры (Point, Triangle, Sphere, Figure)
-│ ├── oct_tree.py # Реализация Octree
-│ ├── tof_function_parallel.py # Numba-реализации алгоритмов пересечения лучей
-│ ├── tof_modeling.py # Основные классы для моделирования: ToFCamera и Ray
-├── stl_models/ # 3D stl-модели (Mig29.stl)
-├── tests.py # Примеры использования
-├── requirements.txt
+├── tof_modeling_lib/           # Основной пакет библиотеки
+│   ├── geometry_tof.py         # Геометрические фигуры (Point, Triangle, Sphere, Figure)
+│   ├── oct_tree.py             # Реализация Octree
+│   ├── tof_function_parallel.py # Numba-реализации алгоритмов пересечения лучей
+│   ├── tof_modeling.py         # Основные классы: ToFCamera и Ray
+│   └── __init__.py             
+├── stl_models/                 # 3D stl-модели (Mig29.stl)
+├── tests.py                    # Примеры использования
+├── requirements.txt            
+└── .gitignore                
+```
