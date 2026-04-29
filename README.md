@@ -34,3 +34,7 @@ raytracer/
 │   └── unified_renderer.py   # Универсальный рендерер
 └── requirements.txt
 ```
+#№ Контактные данные:
+Telegram: @dorohovgleb
+Vk: https://vk.com/id222779271
+Phone: +79026370655
