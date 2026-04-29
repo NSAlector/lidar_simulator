@@ -326,6 +326,62 @@ class MainWindow(QMainWindow):
         dialog.setStyleSheet("background-color: #212121;")
         dialog.exec()
 
+    def _show_render_dialog(self, image_path: str):
+        if not os.path.exists(image_path):
+            return
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle("\U0001f3a8 Render Preview")
+        dialog.resize(700, 560)
+        layout = QVBoxLayout(dialog)
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(6)
+
+        title_label = QLabel("\u0420\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u0440\u0435\u043d\u0434\u0435\u0440\u0430")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title_label.setStyleSheet(
+            "font-size: 14px; font-weight: bold; color: #e0e0e0;"
+            "background: #1b5e20; padding: 6px; border-radius: 4px;"
+        )
+        layout.addWidget(title_label)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        img_label = QLabel()
+        img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        pixmap = QPixmap(image_path)
+        if not pixmap.isNull():
+            scaled = pixmap.scaled(
+                660,
+                480,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+            img_label.setPixmap(scaled)
+        else:
+            img_label.setText("\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u0438\u0437\u043e\u0431\u0440\u0430\u0436\u0435\u043d\u0438\u0435")
+
+        scroll.setWidget(img_label)
+        layout.addWidget(scroll)
+
+        path_label = QLabel(f"\u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e: {image_path}")
+        path_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        path_label.setStyleSheet("font-size: 10px; color: #888888;")
+        path_label.setWordWrap(True)
+        layout.addWidget(path_label)
+
+        close_btn = QPushButton("\u0417\u0430\u043a\u0440\u044b\u0442\u044c")
+        close_btn.clicked.connect(dialog.accept)
+        close_btn.setStyleSheet(
+            "background-color: #2e7d32; color: white; font-weight: bold;"
+            "padding: 6px 20px; border-radius: 4px;"
+        )
+        layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        dialog.setStyleSheet("background-color: #212121;")
+        dialog.exec()
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
