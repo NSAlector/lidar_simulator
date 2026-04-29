@@ -3,7 +3,7 @@ import trimesh
 import fast_simplification
 import stl_reader
 
-from oct_tree import Octree
+from tof_modeling_lib.oct_tree import Octree
 
 
 class Point:

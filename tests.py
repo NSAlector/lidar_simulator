@@ -1,11 +1,9 @@
 import numpy as np
 
-from tof_modeling import ToFCamera
-from geometry_tof import Triangle, Point, Sphere, Figure
+from tof_modeling_lib.tof_modeling import ToFCamera
+from tof_modeling_lib.geometry_tof import Triangle, Point, Sphere, Figure
 
 from time import perf_counter
-
-from scene_loader import SceneConfig, load_scene
 
 
 def simple_pyramid(camera: ToFCamera) -> None:
@@ -124,7 +122,7 @@ if __name__ == "__main__":
     sphere = Sphere(15, Point(np.array([20 -50 + 49.98*0.01,-10 + 250 - 123.77*0.01, 300 - 205.02*0.01])))
     scene = [figure, sphere]
 
-    tof_camera.get_points_and_distances_to_scene(scene, use_octree=True)
+    tof_camera.get_points_and_distances_to_scene(scene, use_octree=True, noise=10.0)
 
     end = perf_counter()
     print(f"total time = {end - start}")

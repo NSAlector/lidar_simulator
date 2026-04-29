@@ -2,7 +2,7 @@ import numpy as np
 
 from numba import njit
 
-from tof_function_parallel import numba_triangle_intersect
+from tof_modeling_lib.tof_function_parallel import numba_triangle_intersect
 
 class IncorrectCoordinates(Exception):
     pass
