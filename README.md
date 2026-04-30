@@ -34,6 +34,11 @@ raytracer/
 │   └── unified_renderer.py   # Универсальный рендерер
 └── requirements.txt
 ```
+## Примеры:
+<img width="347" height="279" alt="refraction_sphere_behind" src="https://github.com/user-attachments/assets/f051b77a-74a5-47a9-9237-e7b86dbea36b" />
+<img width="800" height="600" alt="mirror_cube_angled_45" src="https://github.com/user-attachments/assets/72deccfb-106e-4c92-b1f1-d5ae67dae004" />
+<img width="441" height="492" alt="2026-04-15_20-27-37" src="https://github.com/user-attachments/assets/29e954f3-6147-4709-89ca-736aa11fcb0f" />
+
 ## Контактные данные:
 - Telegram: @dorohovgleb
 - Vk: https://vk.com/id222779271
