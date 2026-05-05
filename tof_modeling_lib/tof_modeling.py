@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import laspy
 
 from tof_modeling_lib.geometry_tof import Point, Sphere, Triangle, Figure, distance_to
+from tof_modeling_lib.point_cloud_loader import PointCloudLoader
 from pypcd4 import pypcd4
 
 from tof_modeling_lib import tof_function_parallel as tfp
@@ -180,6 +181,8 @@ class ToFCamera:
         self.height = height
         self.object_points = None
         self.object_distances = None
+
+        self.loader = PointCloudLoader()
 
     def generate_rays(self) -> list[Ray]:
         """
@@ -476,64 +479,36 @@ class ToFCamera:
         self.object_points = result_points 
         self.object_distances = result_distances
 
-    def write_point_cloud_pcd(self, file: str = "point_cloud.pcd") -> None:
+    def load_point_cloud(self, file: str) -> None:
         """
-        Write point cloud in pcd format.
+        Load point cloud from file.
+
+        Args:
+            file: name of file.
+        """
+        self.object_points = self.loader.load(file)
+
+    def save_point_cloud_las(self, file: str) -> None:
+        """
+        Save point cloud in las format.
 
         Args:
             file: name of new file.
         """
-        if self.object_points is None:
-            raise ValueError("Points were not calculated")
-        pc = pypcd4.PointCloud.from_xyz_points(self.object_points)
-        pc.save(file)
+        self.loader.save_las(self.object_points, file)
 
-    def read_point_cloud_pcd(self, file: str) -> None:
+    def save_point_cloud_pcd(self, file: str) -> None:
         """
-        Read point cloud from pcd file.
+        Save point cloud in pcd format.
 
         Args:
-            file: name of point cloud file.
+            file: name of mew file.
         """
-        pcd = pypcd4.PointCloud.from_path(file)
-        self.object_points = np.column_stack(
-            (pcd.pc_data['x'], pcd.pc_data['y'], pcd.pc_data['z'])
-        )
+        self.loader.save_pcd(self.object_points, file)
 
-    def write_point_cloud_las(self, file: str = "point_cloud.las") -> None:
+    def save_distances_txt(self, file: str = "distances.txt") -> None:
         """
-        Write point cloud in las format.
-
-        Args:
-            file: name of new file.
-        """
-        if self.object_points is None:
-            raise ValueError("Points were not calculated")
-        
-        header = laspy.LasHeader(point_format=3, version="1.2")
-        header.scales = np.array([0.0001, 0.0001, 0.0001])
-
-        las = laspy.LasData(header)
-
-        las.x = self.object_points[:, 0]
-        las.y = self.object_points[:, 1]
-        las.z = self.object_points[:, 2]
-
-        las.write(file)
-
-    def read_point_cloud_las(self, file: str) -> None:
-        """
-        Read point cloud from las file.
-
-        Args:
-            file: name of point cloud file.
-        """
-        las = laspy.read(file)
-        self.object_points = np.column_stack((las.x, las.y, las.z))
-
-    def write_distances_txt(self, file: str = "distances.txt") -> None:
-        """
-        Write distances in txt file.
+        Save distances in txt format.
 
         Args:
             file: name of new file.
@@ -543,9 +518,9 @@ class ToFCamera:
 
         np.savetxt(file, self.object_distances)
 
-    def read_distances_txt(self, file: str) -> None:
+    def load_distances_txt(self, file: str) -> None:
         """
-        Read distances from txt file.
+        Load distances from txt file.
 
         Args:
             file: name of file with distances.
@@ -555,6 +530,14 @@ class ToFCamera:
     @property
     def distances_and_points(self) -> tuple[np.ndarray | None, np.ndarray | None]:
         return self.object_distances, self.object_points
+    
+    @property
+    def points(self) -> np.ndarray | None:
+        return self.object_points
+    
+    @property
+    def distances(self) -> np.ndarray | None:
+        return self.object_distances
 
 if __name__ == "__main__":
     tof_camera = ToFCamera(
