@@ -1,10 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import laspy
 
 from tof_modeling_lib.geometry_tof import Point, Sphere, Triangle, Figure, distance_to
 from tof_modeling_lib.point_cloud_loader import PointCloudLoader
-from pypcd4 import pypcd4
 
 from tof_modeling_lib import tof_function_parallel as tfp
 

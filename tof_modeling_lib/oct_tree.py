@@ -51,13 +51,10 @@ def numba_check_triangle_in_box(
     v2: np.ndarray,
     v3: np.ndarray
 ) -> bool:
-    if np.all(v1 >= box_min) and np.all(v1 <= box_max):
-        return True
-    if np.all(v2 >= box_min) and np.all(v2 <= box_max):
-        return True
-    if np.all(v3 >= box_min) and np.all(v3 <= box_max):
-        return True
-    return False
+    tri_min = np.minimum(np.minimum(v1, v2), v3)
+    tri_max = np.maximum(np.maximum(v1, v2), v3)
+
+    return np.all(tri_max >= box_min) and np.all(tri_min <= box_max)
 
 class Box:
     """
