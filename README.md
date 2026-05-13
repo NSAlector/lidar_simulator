@@ -102,6 +102,9 @@
 - depth map;
 - point cloud.
 
+<img width="1920" height="1043" alt="image" src="https://github.com/user-attachments/assets/770602de-0825-488f-a745-d90a6c416aa1" />
+
+
 ---
 
 ## Контакты
