@@ -231,8 +231,6 @@ class MainWindow(QMainWindow):
         self.route_point_cloud_format_layout = QHBoxLayout()
         self.route_point_cloud_format_layout.addWidget(QLabel("Формат облака точек:"))
         self.route_point_cloud_format_combo = QComboBox()
-        self.route_point_cloud_format_combo.addItem("PCD", "pcd")
-        self.route_point_cloud_format_combo.addItem("LAS", "las")
         self.route_point_cloud_format_layout.addWidget(self.route_point_cloud_format_combo)
         self.route_layout.addLayout(self.route_point_cloud_format_layout)
 

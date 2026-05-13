@@ -45,6 +45,7 @@ class SimulationController:
             'position': SimulationDefaults.RENDER_POS,
             'target': SimulationDefaults.RENDER_TARGET,
         })
+        self._populate_point_cloud_formats()
         self._set_route_output_dir(self._default_route_output_dir())
 
         self._connect_signals()
@@ -224,6 +225,26 @@ class SimulationController:
     def _selected_point_cloud_format(self) -> str:
         return str(self.view.route_point_cloud_format_combo.currentData() or "pcd").lower()
 
+    def _populate_point_cloud_formats(self):
+        combo = self.view.route_point_cloud_format_combo
+        current_format = combo.currentData()
+        formats = self.tof_service.available_point_cloud_formats()
+
+        signals_blocked = combo.blockSignals(True)
+        combo.clear()
+        for point_cloud_format in formats:
+            combo.addItem(point_cloud_format.upper(), point_cloud_format)
+
+        if combo.count() == 0:
+            combo.addItem("PCD", "pcd")
+
+        if current_format:
+            index = combo.findData(str(current_format).lower())
+            if index >= 0:
+                combo.setCurrentIndex(index)
+
+        combo.blockSignals(signals_blocked)
+
     def _selected_route_session_name(self) -> str:
         return "orbit_flythrough" if self._selected_route_mode() == "orbit" else "linear_flythrough"
 
@@ -257,11 +278,7 @@ class SimulationController:
 
         points = getattr(self.gl_scene.scene_state, 'tof_points', [])
         normalized_point_cloud_format = str(point_cloud_format or "pcd").lower()
-        point_cloud_saver = {
-            "pcd": self.tof_service.save_point_cloud_pcd,
-            "las": self.tof_service.save_point_cloud_las,
-        }.get(normalized_point_cloud_format)
-        if point_cloud_path and point_cloud_saver is None:
+        if point_cloud_path and normalized_point_cloud_format not in self.tof_service.available_point_cloud_formats():
             raise ValueError(f"Неподдерживаемый формат облака точек: {point_cloud_format}")
 
         return {
@@ -271,7 +288,11 @@ class SimulationController:
             ),
             "point_cloud_saved": bool(point_cloud_path) and self._try_call(
                 f"save_point_cloud_{normalized_point_cloud_format}",
-                lambda: point_cloud_saver(point_cloud_path, points=points),
+                lambda: self.tof_service.save_point_cloud(
+                    point_cloud_path,
+                    normalized_point_cloud_format,
+                    points=points,
+                ),
             ),
         }
 
