@@ -8,6 +8,26 @@ class ToFService:
         self._last_camera = None
 
     @staticmethod
+    def available_point_cloud_formats():
+        formats = set()
+
+        from tof_modeling_lib.point_cloud_loader import PointCloudLoaderMeta
+        formats.update(str(format_name).lower() for format_name in PointCloudLoaderMeta._registry)
+
+        _, _, _, ToFCamera = ToFService._load_tof_dependencies()
+        camera_formats = {
+            method_name.removeprefix("save_point_cloud_").lower()
+            for method_name in dir(ToFCamera)
+            if method_name.startswith("save_point_cloud_")
+        }
+        formats = formats & camera_formats if formats and camera_formats else formats | camera_formats
+
+        if not formats:
+            formats.update(("pcd", "las"))
+
+        return tuple(sorted(formats))
+
+    @staticmethod
     def _apply_accuracy(camera_position, points, distances, accuracy, near_plane, far_plane):
         accuracy = max(0.0, float(accuracy))
         if accuracy <= 0.0:
@@ -204,60 +224,69 @@ class ToFService:
         return True
 
     def save_point_cloud_pcd(self, filename="point_cloud.pcd", points=None):
-        if self._last_camera is None and points is None:
-            return False
-
-        output_dir = os.path.dirname(os.path.abspath(filename))
-        if output_dir:
-            os.makedirs(output_dir, exist_ok=True)
-
-        if points is None:
-            self._last_camera.write_point_cloud_pcd(filename)
-        else:
-            import pypcd4
-
-            point_array = np.asarray(points, dtype=np.float32)
-            if point_array.size == 0:
-                point_array = np.empty((0, 3), dtype=np.float32)
-            elif point_array.ndim == 1:
-                point_array = point_array.reshape(1, -1)
-
-            if point_array.shape[1] > 3:
-                point_array = point_array[:, :3]
-
-            point_cloud = pypcd4.PointCloud.from_xyz_points(point_array)
-            point_cloud.save(filename)
-
-        return True
+        return self.save_point_cloud(filename, "pcd", points=points)
 
     def save_point_cloud_las(self, filename="point_cloud.las", points=None):
+        return self.save_point_cloud(filename, "las", points=points)
+
+    @staticmethod
+    def _point_array(points):
+        point_array = np.asarray(points, dtype=np.float64)
+        if point_array.size == 0:
+            return np.empty((0, 3), dtype=np.float64)
+        if point_array.ndim == 1:
+            point_array = point_array.reshape(1, -1)
+        if point_array.shape[1] < 3:
+            raise ValueError("Point cloud points must have at least 3 coordinates")
+        if point_array.shape[1] > 3:
+            point_array = point_array[:, :3]
+        return point_array
+
+    @staticmethod
+    def _save_points_with_loader(points, filename, point_cloud_format):
+        from tof_modeling_lib.point_cloud_loader import PointCloudLoader
+
+        saver = getattr(PointCloudLoader, f"save_{point_cloud_format}", None)
+        if not callable(saver):
+            raise ValueError(f"Unsupported point cloud format: {point_cloud_format}")
+
+        saver(points, filename)
+
+    def save_point_cloud(self, filename="point_cloud.pcd", point_cloud_format=None, points=None):
         if self._last_camera is None and points is None:
             return False
+
+        normalized_format = str(
+            point_cloud_format
+            or os.path.splitext(str(filename))[1].lstrip(".")
+            or "pcd"
+        ).lower()
+
+        if normalized_format not in self.available_point_cloud_formats():
+            raise ValueError(f"Unsupported point cloud format: {normalized_format}")
 
         output_dir = os.path.dirname(os.path.abspath(filename))
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
 
+        saver_name = f"save_point_cloud_{normalized_format}"
+
         if points is None:
-            self._last_camera.write_point_cloud_las(filename)
-        else:
-            import laspy
+            saver = getattr(self._last_camera, saver_name, None)
+            if not callable(saver):
+                raise ValueError(f"Unsupported point cloud format: {normalized_format}")
 
-            point_array = np.asarray(points, dtype=np.float64)
-            if point_array.size == 0:
-                point_array = np.empty((0, 3), dtype=np.float64)
-            elif point_array.ndim == 1:
-                point_array = point_array.reshape(1, -1)
+            saver(filename)
+            return True
 
-            if point_array.shape[1] > 3:
-                point_array = point_array[:, :3]
+        point_array = self._point_array(points)
+        if self._last_camera is not None:
+            self._last_camera.object_points = point_array
+            saver = getattr(self._last_camera, saver_name, None)
+            if callable(saver):
+                saver(filename)
+                return True
 
-            header = laspy.LasHeader(point_format=3, version="1.2")
-            header.scales = np.array([0.0001, 0.0001, 0.0001])
-            las = laspy.LasData(header)
-            las.x = point_array[:, 0]
-            las.y = point_array[:, 1]
-            las.z = point_array[:, 2]
-            las.write(filename)
+        self._save_points_with_loader(point_array, filename, normalized_format)
 
         return True
